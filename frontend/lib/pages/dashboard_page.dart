@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'booking.dart';
-import 'tracking.dart';
+import 'booking_page.dart';
+import 'tracking_page.dart';
 import 'admin_page.dart';
 
 class Dashboard extends StatelessWidget {
