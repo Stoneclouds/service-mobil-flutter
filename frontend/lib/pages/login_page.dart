@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-import 'dashboard_page.dart';
 import 'package:animate_do/animate_do.dart';
 import '../services/auth_service.dart';
+import 'home_page.dart';
+
 final AuthService authService = AuthService();
+
 void main() {
   runApp(const MyApp());
 }
@@ -36,44 +35,58 @@ class _LoginPageState extends State<LoginPage> {
 
   void login() async {
 
-    try {
+  try {
 
-      var data = await authService.login(
-        user.text,
-        pass.text,
+    var data = await authService.login(
+      user.text,
+      pass.text,
+    );
+
+    if(data["status"]=="success"){
+
+      Navigator.pushReplacement(
+
+        context,
+
+        MaterialPageRoute(
+
+          builder: (_)=>HomePage(
+
+            username: data["user"]["username"],
+
+            role: data["user"]["role"],
+
+          ),
+
+        ),
+
       );
 
-      if (data["status"] == "success") {
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => Dashboard(
-              username: data["user"]["username"],
-              role: data["user"]["role"],
-            ),
-          ),
-        );
-
-      } else {
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Username atau Password salah"),
-          ),
-        );
-
-      }
-
-    } catch (e) {
+    }else{
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+
+        const SnackBar(
+
+          content: Text("Username atau Password salah"),
+
+        ),
+
       );
 
     }
 
+  }catch(e){
+
+    ScaffoldMessenger.of(context).showSnackBar(
+
+      SnackBar(content: Text(e.toString())),
+
+    );
+
   }
+
+}
 
   @override
   Widget build(BuildContext context) {

@@ -6,27 +6,19 @@ class AppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
 
+    scaffoldBackgroundColor: AppColor.background,
+
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColor.primary,
     ),
 
-    scaffoldBackgroundColor: AppColor.background,
-
     textTheme: GoogleFonts.poppinsTextTheme(),
 
     appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.transparent,
-      foregroundColor: Colors.black,
       elevation: 0,
       centerTitle: true,
-    ),
-
-    cardTheme: CardThemeData(
-      color: AppColor.card,
-      elevation: 6,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      backgroundColor: Colors.transparent,
+      foregroundColor: Colors.black,
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -36,6 +28,28 @@ class AppTheme {
         minimumSize: const Size(double.infinity, 55),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
+        ),
+      ),
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white,
+
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: const BorderSide(
+          color: AppColor.primary,
         ),
       ),
     ),

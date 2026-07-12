@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class Booking extends StatefulWidget {
+class BookingPage extends StatefulWidget {
   final String username;
 
-  const Booking({
+  const BookingPage({
     super.key,
     required this.username,
   });
 
   @override
-  State<Booking> createState() => _BookingState();
+  State<BookingPage> createState() => _BookingState();
 }
 
-class _BookingState extends State<Booking> {
+class _BookingState extends State<BookingPage> {
 
   final keluhan = TextEditingController();
 

@@ -1,9 +1,30 @@
-MaterialApp(
+import 'package:flutter/material.dart';
 
-  debugShowCheckedModeBanner: false,
+import 'constants/app_theme.dart';
+import 'pages/login_page.dart';
 
-  theme: AppTheme.lightTheme,
+void main() {
+  runApp(const MyApp());
+}
 
-  home: const LoginPage(),
+class MyApp extends StatelessWidget {
 
-);
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+
+    return MaterialApp(
+
+      debugShowCheckedModeBanner: false,
+
+      title: "AutoCare+",
+
+      theme: AppTheme.lightTheme,
+
+      home: const LoginPage(),
+
+    );
+
+  }
+}
