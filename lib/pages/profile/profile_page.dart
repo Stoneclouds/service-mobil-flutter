@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
 
-class ProfilePage extends StatelessWidget {
+import '../../models/profile_model.dart';
+import '../../services/profile_service.dart';
+import '../../services/session_service.dart';
+import '../login_page.dart';
+
+class ProfilePage extends StatefulWidget {
   final int userId;
   final String username;
   final String role;
@@ -11,143 +17,320 @@ class ProfilePage extends StatelessWidget {
     required this.username,
     required this.role,
   });
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("My Profile"),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
+  State<ProfilePage> createState() => _ProfilePageState();
+}
 
-            const SizedBox(height: 30),
+class _ProfilePageState extends State<ProfilePage> {
 
-            const CircleAvatar(
-              radius: 55,
-              backgroundColor: Colors.blue,
-              child: Icon(
-                Icons.person,
-                color: Colors.white,
-                size: 55,
-              ),
-            ),
+  final ProfileService profileService = ProfileService();
 
-            const SizedBox(height: 15),
+  late Future<ProfileModel?> profile;
 
-            const Text(
-              "Samuel",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+  @override
+  void initState() {
+    super.initState();
+    profile = profileService.getProfile(widget.userId);
+  }
 
-            const SizedBox(height: 5),
+  Future<void> logout() async {
 
-            Text(
-              "Customer",
-              style: TextStyle(
-                color: Colors.grey.shade700,
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            Card(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-              ),
-              elevation: 5,
-              child: Column(
-                children: [
-
-                  ListTile(
-                    leading: const Icon(Icons.email),
-                    title: const Text("Email"),
-                    subtitle: const Text("samuel@email.com"),
-                  ),
-
-                  const Divider(height: 1),
-
-                  ListTile(
-                    leading: const Icon(Icons.phone),
-                    title: const Text("Phone"),
-                    subtitle: const Text("081234567890"),
-                  ),
-
-                  const Divider(height: 1),
-
-                  ListTile(
-                    leading: const Icon(Icons.location_on),
-                    title: const Text("Address"),
-                    subtitle: const Text("Ambon, Indonesia"),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            Card(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-              ),
-              elevation: 5,
-              child: Column(
-                children: [
-
-                  ListTile(
-                    leading: const Icon(Icons.settings),
-                    title: const Text("Settings"),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {},
-                  ),
-
-                  const Divider(height: 1),
-
-                  ListTile(
-                    leading: const Icon(Icons.help_outline),
-                    title: const Text("Help Center"),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {},
-                  ),
-
-                  const Divider(height: 1),
-
-                  ListTile(
-                    leading: const Icon(
-                      Icons.logout,
-                      color: Colors.red,
-                    ),
-                    title: const Text(
-                      "Logout",
-                      style: TextStyle(
-                        color: Colors.red,
-                      ),
-                    ),
-                    onTap: () {
-
-                      Navigator.popUntil(
-                        context,
-                        (route) => route.isFirst,
-                      );
-
-                    },
-                  ),
-
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-          ],
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Logout"),
+        content: const Text(
+          "Apakah Anda yakin ingin keluar?",
         ),
+        actions: [
+
+          TextButton(
+            onPressed: (){
+              Navigator.pop(context,false);
+            },
+            child: const Text("Batal"),
+          ),
+
+          ElevatedButton(
+            onPressed: (){
+              Navigator.pop(context,true);
+            },
+            child: const Text("Logout"),
+          )
+
+        ],
       ),
     );
+
+    if(confirm != true) return;
+
+    await SessionService().logout();
+
+    if(!mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoginPage(),
+      ),
+      (route)=>false,
+    );
+
   }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+
+      appBar: AppBar(
+        title: const Text("Profile"),
+        centerTitle: true,
+      ),
+
+      body: FutureBuilder<ProfileModel?>(
+
+        future: profile,
+
+        builder: (context,snapshot){
+
+          if(snapshot.connectionState ==
+              ConnectionState.waiting){
+
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+
+          }
+
+          if(snapshot.hasError){
+
+            return const Center(
+              child: Text("Gagal mengambil profile"),
+            );
+
+          }
+
+          if(!snapshot.hasData){
+
+            return const Center(
+              child: Text("Data tidak ditemukan"),
+            );
+
+          }
+
+          final user = snapshot.data!;
+
+          return SingleChildScrollView(
+
+            padding: const EdgeInsets.all(20),
+
+            child: Column(
+
+              children: [
+
+                FadeInDown(
+
+                  child: CircleAvatar(
+
+                    radius: 55,
+
+                    backgroundColor: Colors.blue,
+
+                    child: Text(
+
+                      user.username[0].toUpperCase(),
+
+                      style: const TextStyle(
+                        fontSize: 42,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+
+                    ),
+
+                  ),
+
+                ),
+
+                const SizedBox(height:20),
+
+                Text(
+
+                  user.username,
+
+                  style: const TextStyle(
+
+                    fontSize:24,
+                    fontWeight: FontWeight.bold,
+
+                  ),
+
+                ),
+
+                const SizedBox(height:8),
+
+                Chip(
+
+                  label: Text(user.role.toUpperCase()),
+
+                  backgroundColor: Colors.blue.shade100,
+
+                ),
+
+                const SizedBox(height:30),
+
+                Row(
+
+                  children: [
+
+                    Expanded(
+
+                      child: Card(
+
+                        child: Padding(
+
+                          padding: const EdgeInsets.all(20),
+
+                          child: Column(
+
+                            children: [
+
+                              const Icon(
+                                Icons.calendar_month,
+                                color: Colors.blue,
+                                size: 40,
+                              ),
+
+                              const SizedBox(height:10),
+
+                              const Text("Booking"),
+
+                              Text(
+
+                                user.booking.toString(),
+
+                                style: const TextStyle(
+
+                                  fontSize:26,
+                                  fontWeight: FontWeight.bold,
+
+                                ),
+
+                              ),
+
+                            ],
+
+                          ),
+
+                        ),
+
+                      ),
+
+                    ),
+
+                    const SizedBox(width:15),
+
+                    Expanded(
+
+                      child: Card(
+
+                        child: Padding(
+
+                          padding: const EdgeInsets.all(20),
+
+                          child: Column(
+
+                            children: [
+
+                              const Icon(
+
+                                Icons.star,
+
+                                color: Colors.orange,
+
+                                size:40,
+
+                              ),
+
+                              const SizedBox(height:10),
+
+                              const Text("Points"),
+
+                              Text(
+
+                                user.points.toString(),
+
+                                style: const TextStyle(
+
+                                  fontSize:26,
+                                  fontWeight: FontWeight.bold,
+
+                                ),
+
+                              ),
+
+                            ],
+
+                          ),
+
+                        ),
+
+                      ),
+
+                    ),
+
+                  ],
+
+                ),
+
+                const SizedBox(height:40),
+
+                SizedBox(
+
+                  width: double.infinity,
+
+                  height: 55,
+
+                  child: ElevatedButton.icon(
+
+                    style: ElevatedButton.styleFrom(
+
+                      backgroundColor: Colors.red,
+
+                    ),
+
+                    onPressed: logout,
+
+                    icon: const Icon(Icons.logout),
+
+                    label: const Text(
+
+                      "Logout",
+
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+
+                    ),
+
+                  ),
+
+                )
+
+              ],
+
+            ),
+
+          );
+
+        },
+
+      ),
+
+    );
+
+  }
+
 }

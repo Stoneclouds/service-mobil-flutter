@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import '../../models/history_model.dart';
 
 import '../../services/dashboard_service.dart';
 
@@ -14,6 +15,7 @@ import '../booking/booking_page.dart';
 import '../tracking/tracking_page.dart';
 import '../profile/profile_page.dart';
 import '../admin/admin_booking_page.dart';
+import '../history/history_page.dart';
 
 class Dashboard extends StatefulWidget {
   final int userId;
@@ -34,17 +36,17 @@ class _DashboardState extends State<Dashboard> {
   final DashboardService dashboardService = DashboardService();
 
   late Future<Map<String, dynamic>> stats;
-
+  late Future<HistoryModel?> lastBooking;
   @override
   void initState() {
     super.initState();
-
     loadDashboard();
   }
 
   Future<void> loadDashboard() async {
     setState(() {
       stats = dashboardService.getStats(widget.userId);
+      lastBooking = dashboardService.getLastBooking(widget.userId);
     });
   }
 
@@ -204,7 +206,16 @@ class _DashboardState extends State<Dashboard> {
                       icon: Icons.history,
                       title: "History",
                       color: Colors.green,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => HistoryPage(
+                              userId: widget.userId,
+                            ),
+                          ),
+                        );
+                      },
                     ),
 
                     const SizedBox(width: 15),
@@ -272,7 +283,38 @@ class _DashboardState extends State<Dashboard> {
 
               FadeInUp(
                 delay: const Duration(milliseconds: 1200),
-                child: const HistoryCard(),
+                child: FutureBuilder<HistoryModel?>(
+                  future: lastBooking,
+                  builder: (context, snapshot) {
+
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    if (!snapshot.hasData) {
+                      return const Card(
+                        child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Text(
+                            "Belum ada booking",
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }
+
+                    final item = snapshot.data!;
+
+                    return HistoryCard(
+                      vehicleName: item.vehicleName,
+                      serviceType: item.serviceType,
+                      bookingDate: item.bookingDate,
+                      status: item.status,
+                    );
+                  },
+                ),
               ),
 
             ],

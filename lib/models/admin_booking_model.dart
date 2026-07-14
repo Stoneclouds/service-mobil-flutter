@@ -1,46 +1,34 @@
-class HistoryModel {
+class AdminBookingModel {
 
   final int id;
-
+  final String username;
   final String vehicleName;
-
-  final String vehicleNumber;
-
   final String serviceType;
-
   final String bookingDate;
-
   final String bookingTime;
-
   final String status;
 
-  HistoryModel({
+  AdminBookingModel({
 
     required this.id,
-
+    required this.username,
     required this.vehicleName,
-
-    required this.vehicleNumber,
-
     required this.serviceType,
-
     required this.bookingDate,
-
     required this.bookingTime,
-
     required this.status,
 
   });
 
-  factory HistoryModel.fromJson(Map<String,dynamic> json){
+  factory AdminBookingModel.fromJson(Map<String,dynamic> json){
 
-    return HistoryModel(
+    return AdminBookingModel(
 
       id: int.parse(json["id"].toString()),
 
-      vehicleName: json["vehicle_name"],
+      username: json["username"],
 
-      vehicleNumber: json["vehicle_number"],
+      vehicleName: json["vehicle_name"],
 
       serviceType: json["service_type"],
 
