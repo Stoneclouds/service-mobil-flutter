@@ -8,10 +8,12 @@ import '../../widgets/stat_card.dart';
 import '../../widgets/quick_action_card.dart';
 import '../../widgets/promo_card.dart';
 import '../../widgets/history_card.dart';
+import '../../widgets/shimmer/dashboard_shimmer.dart';
 
 import '../booking/booking_page.dart';
 import '../tracking/tracking_page.dart';
 import '../profile/profile_page.dart';
+import '../admin/admin_booking_page.dart';
 
 class Dashboard extends StatefulWidget {
   final String username;
@@ -44,9 +46,7 @@ class _DashboardState extends State<Dashboard> {
       future: stats,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const DashboardShimmer();
         }
 
         if (snapshot.hasError) {
@@ -208,6 +208,23 @@ class _DashboardState extends State<Dashboard> {
                       },
                     ),
 
+                    if (widget.role == "admin") ...[
+                      const SizedBox(height: 15),
+
+                      QuickActionCard(
+                        icon: Icons.admin_panel_settings,
+                        title: "Admin",
+                        color: Colors.red,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AdminBookingPage(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ],
                 ),
               ),

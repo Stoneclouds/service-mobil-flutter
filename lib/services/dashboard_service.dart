@@ -13,9 +13,10 @@ class DashboardService {
       Uri.parse("$baseUrl/dashboard.php"),
 
     );
-
+    print("STATUS CODE : ${response.statusCode}");
+    print("BODY : ${response.body}");
+    
     return jsonDecode(response.body);
-
   }
-
+  
 }
