@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  final int userId;
+  final String username;
+  final String role;
 
+  const ProfilePage({
+    super.key,
+    required this.userId,
+    required this.username,
+    required this.role,
+  });
   @override
   Widget build(BuildContext context) {
     return Scaffold(

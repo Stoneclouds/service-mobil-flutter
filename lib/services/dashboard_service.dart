@@ -6,17 +6,17 @@ class DashboardService {
   static const String baseUrl =
       "http://192.168.18.167/servis_mobile/api";
 
-  Future<Map<String,dynamic>> getStats() async{
+  Future<Map<String, dynamic>> getStats(int userId) async {
 
     final response = await http.get(
 
-      Uri.parse("$baseUrl/dashboard.php"),
+      Uri.parse(
+        "$baseUrl/dashboard.php?user_id=$userId",
+      ),
 
     );
-    print("STATUS CODE : ${response.statusCode}");
-    print("BODY : ${response.body}");
-    
+
     return jsonDecode(response.body);
+
   }
-  
 }

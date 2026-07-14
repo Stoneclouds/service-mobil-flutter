@@ -1,24 +1,39 @@
 <?php
-header("Content-Type: application/json");
 
+header("Content-Type: application/json");
 include "koneksi.php";
 
-$username      = $_POST['username'];
-$keluhan       = $_POST['keluhan'];
-$jenis_servis  = $_POST['jenis_servis'];
-$prioritas     = $_POST['prioritas'];
+$user_id        = $_POST['user_id'];
+$vehicle_name   = $_POST['vehicle_name'];
+$vehicle_number = $_POST['vehicle_number'];
+$service_type   = $_POST['service_type'];
+$booking_date   = $_POST['booking_date'];
+$booking_time   = $_POST['booking_time'];
+$notes          = $_POST['notes'];
 
 $query = mysqli_query(
     $conn,
-    "INSERT INTO services
-    (username,keluhan,jenis_servis,prioritas,status)
+    "INSERT INTO booking
+    (
+        user_id,
+        vehicle_name,
+        vehicle_number,
+        service_type,
+        booking_date,
+        booking_time,
+        notes,
+        status
+    )
     VALUES
     (
-        '$username',
-        '$keluhan',
-        '$jenis_servis',
-        '$prioritas',
-        'Menunggu'
+        '$user_id',
+        '$vehicle_name',
+        '$vehicle_number',
+        '$service_type',
+        '$booking_date',
+        '$booking_time',
+        '$notes',
+        'Pending'
     )"
 );
 
@@ -31,7 +46,8 @@ if($query){
 }else{
 
     echo json_encode([
-        "status"=>"failed"
+        "status"=>"failed",
+        "error"=>mysqli_error($conn)
     ]);
+
 }
-?>

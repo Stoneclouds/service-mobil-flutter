@@ -7,11 +7,14 @@ import 'profile/profile_page.dart';
 
 
 class HomePage extends StatefulWidget {
+
+  final int userId;
   final String username;
   final String role;
 
   const HomePage({
     super.key,
+    required this.userId,
     required this.username,
     required this.role,
   });
@@ -23,43 +26,35 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int currentIndex = 0;
 
-  late final List<Widget> pages;
   
-  @override
-  void initState() {
-    super.initState();
-
-    pages = [
-      Dashboard(
-        username: widget.username,
-        role    : widget.role,
-      ),
-      BookingPage(
-        username: widget.username,
-      ),
-      const TrackingPage(),
-      const ProfilePage(),
-    ];
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: pages[currentIndex],
+    final pages = [
 
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.blue,
-        icon: const Icon(Icons.car_repair),
-        label: const Text("Booking"),
-        onPressed: () {
-          setState(() {
-            currentIndex = 1;
-          });
-        },
+      Dashboard(
+        userId: widget.userId,
+        username: widget.username,
+        role: widget.role,
       ),
 
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.centerDocked,
+      BookingPage(
+        userId: widget.userId,
+      ),
+
+      TrackingPage(
+        userId: widget.userId,
+      ),
+
+      ProfilePage(
+        userId: widget.userId,
+        username: widget.username,
+        role: widget.role,
+      ),
+
+    ];
+    return Scaffold(
+      body: pages[currentIndex],
 
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,

@@ -1,25 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+
 import '../services/auth_service.dart';
+import '../services/session_service.dart';
 import 'home_page.dart';
 
 final AuthService authService = AuthService();
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: LoginPage(),
-    );
-  }
-}
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -29,80 +15,78 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   final user = TextEditingController();
   final pass = TextEditingController();
 
-  void login() async {
-
-  try {
-
-    var data = await authService.login(
-      user.text,
-      pass.text,
-    );
-
-    if(data["status"]=="success"){
-
-      Navigator.pushReplacement(
-
-        context,
-
-        MaterialPageRoute(
-
-          builder: (_)=>HomePage(
-
-            username: data["user"]["username"],
-
-            role: data["user"]["role"],
-
-          ),
-
-        ),
-
+  Future<void> login() async {
+    try {
+      final data = await authService.login(
+        user.text.trim(),
+        pass.text.trim(),
       );
 
-    }else{
+      if (data["status"] == "success") {
+        final userData = data["user"];
+
+        final int userId = int.parse(userData["id"].toString());
+        final String username = userData["username"];
+        final String role = userData["role"];
+
+        await SessionService().saveLogin(
+          id: userId,
+          username: username,
+          role: role,
+        );
+
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => HomePage(
+              userId: userId,
+              username: username,
+              role: role,
+            ),
+          ),
+        );
+      } else {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Username atau Password salah"),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-
-        const SnackBar(
-
-          content: Text("Username atau Password salah"),
-
+        SnackBar(
+          content: Text("Terjadi kesalahan:\n$e"),
         ),
-
       );
-
     }
-
-  }catch(e){
-
-    ScaffoldMessenger.of(context).showSnackBar(
-
-      SnackBar(content: Text(e.toString())),
-
-    );
-
   }
 
-}
+  @override
+  void dispose() {
+    user.dispose();
+    pass.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.blue[50],
-
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(25),
-
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-
             children: [
-
               BounceInDown(
                 child: const Icon(
                   Icons.car_repair,
@@ -159,7 +143,6 @@ class _LoginPageState extends State<LoginPage> {
                 child: SizedBox(
                   width: double.infinity,
                   height: 55,
-
                   child: ElevatedButton(
                     onPressed: login,
                     child: const Text("LOGIN"),

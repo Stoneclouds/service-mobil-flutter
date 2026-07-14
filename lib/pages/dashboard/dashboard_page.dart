@@ -16,11 +16,12 @@ import '../profile/profile_page.dart';
 import '../admin/admin_booking_page.dart';
 
 class Dashboard extends StatefulWidget {
+  final int userId;
   final String username;
   final String role;
-
   const Dashboard({
     super.key,
+    required this.userId,
     required this.username,
     required this.role,
   });
@@ -37,7 +38,14 @@ class _DashboardState extends State<Dashboard> {
   @override
   void initState() {
     super.initState();
-    stats = dashboardService.getStats();
+
+    loadDashboard();
+  }
+
+  Future<void> loadDashboard() async {
+    setState(() {
+      stats = dashboardService.getStats(widget.userId);
+    });
   }
 
   @override
@@ -146,15 +154,20 @@ class _DashboardState extends State<Dashboard> {
                       icon: Icons.car_repair,
                       title: "Booking",
                       color: Colors.blue,
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => BookingPage(
-                              username: widget.username,
+                              userId: widget.userId,
                             ),
                           ),
                         );
+
+                        if (result == true) {
+                          Navigator.pop(context, true);
+                          loadDashboard();
+                        }
                       },
                     ),
 
@@ -168,7 +181,9 @@ class _DashboardState extends State<Dashboard> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const TrackingPage(),
+                            builder: (_) => TrackingPage(
+                              userId: widget.userId,
+                            ),
                           ),
                         );
                       },
@@ -202,7 +217,11 @@ class _DashboardState extends State<Dashboard> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const ProfilePage(),
+                            builder: (_) => ProfilePage(
+                              userId: widget.userId,
+                              username: widget.username,
+                              role: widget.role,
+                            ),
                           ),
                         );
                       },
