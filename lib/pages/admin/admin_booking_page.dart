@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/admin_booking_model.dart';
 import '../../services/admin_service.dart';
+import '../../widgets/success_dialog.dart';
+import '../../widgets/error_dialog.dart';
 
 class AdminBookingPage extends StatefulWidget {
   const AdminBookingPage({super.key});
@@ -51,28 +53,42 @@ class _AdminBookingPageState extends State<AdminBookingPage> {
       String status,
       ) async {
 
-    bool success = await adminService.updateStatus(
-      booking.id,
-      status,
-    );
-
-    if(success){
-
-      ScaffoldMessenger.of(context).showSnackBar(
-
-        const SnackBar(
-          content: Text("Status berhasil diperbarui"),
-        ),
-
+      bool success = await adminService.updateStatus(
+        booking.id,
+        status,
       );
 
-      setState(() {
-        loadData();
-      });
+      if(success){
 
-    }
+        await SuccessDialog.show(
+
+          context,
+
+          title: "Berhasil",
+
+          message:
+              "Status booking berhasil diperbarui.",
+
+        );
+        setState(() {
+          loadData();
+        });
+     } else{
+
+    await ErrorDialog.show(
+
+      context,
+
+      title: "Gagal",
+
+      message:
+          "Status booking gagal diperbarui.",
+
+    );
 
   }
+
+}
 
   void showStatusDialog(AdminBookingModel booking){
 
@@ -159,11 +175,83 @@ class _AdminBookingPageState extends State<AdminBookingPage> {
             );
 
           }
+          
+          if(snapshot.hasError){
 
+          return Center(
+
+            child: Column(
+
+              mainAxisAlignment: MainAxisAlignment.center,
+
+              children: [
+
+                const Icon(
+                  Icons.error,
+                  size:80,
+                  color:Colors.red,
+                ),
+
+                const SizedBox(height:20),
+
+                const Text(
+                  "Data booking gagal dimuat",
+                ),
+
+                ElevatedButton(
+
+                  onPressed: (){
+
+                    setState((){
+
+                      loadData();
+
+                    });
+
+                  },
+
+                  child: const Text("Refresh"),
+
+                )
+
+              ],
+
+            ),
+
+          );
+
+        }
           if(!snapshot.hasData || snapshot.data!.isEmpty){
 
-            return const Center(
-              child: Text("Belum ada booking"),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+
+                  Icon(
+                    Icons.assignment,
+                    size: 90,
+                    color: Colors.grey,
+                  ),
+
+                  SizedBox(height: 20),
+
+                  Text(
+                    "Belum ada booking",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  SizedBox(height: 8),
+
+                  Text(
+                    "Booking pelanggan akan muncul di sini.",
+                  ),
+
+                ],
+              ),
             );
 
           }
@@ -198,7 +286,7 @@ class _AdminBookingPageState extends State<AdminBookingPage> {
                   elevation: 3,
 
                   child: ListTile(
-
+                    isThreeLine: true,
                     leading: CircleAvatar(
 
                       backgroundColor: statusColor(

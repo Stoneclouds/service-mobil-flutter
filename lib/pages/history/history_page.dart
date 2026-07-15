@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/history_model.dart';
 import '../../services/history_service.dart';
+import '../../widgets/shimmer/history_shimmer.dart';
 
 class HistoryPage extends StatefulWidget {
   final int userId;
@@ -26,7 +27,16 @@ class _HistoryPageState extends State<HistoryPage> {
     super.initState();
     loadHistory();
   }
+    Future<void> refreshHistory() async {
 
+    setState(() {
+
+      history =
+          historyService.getHistory(widget.userId);
+
+    });
+
+  }
   Future<void> loadHistory() async {
 
     setState(() {
@@ -74,39 +84,106 @@ class _HistoryPageState extends State<HistoryPage> {
 
           builder: (context,snapshot){
 
-            if(snapshot.connectionState==ConnectionState.waiting){
-
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-
+            if(snapshot.connectionState == ConnectionState.waiting){
+              return const HistoryShimmer();
             }
 
             if(snapshot.hasError){
 
-              return const Center(
-                child: Text("Gagal mengambil data"),
+              return Center(
+
+                child: Column(
+
+                  mainAxisAlignment: MainAxisAlignment.center,
+
+                  children: [
+
+                    const Icon(
+                      Icons.history_toggle_off,
+                      size:80,
+                      color:Colors.red,
+                    ),
+
+                    const SizedBox(height:20),
+
+                    const Text(
+                      "Riwayat gagal dimuat",
+                    ),
+
+                    ElevatedButton(
+
+                      onPressed: (){
+
+                        setState((){
+
+                          history =
+                              historyService.getHistory(widget.userId);
+
+                        });
+
+                      },
+
+                      child: const Text("Refresh"),
+
+                    )
+
+                  ],
+
+                ),
+
               );
 
             }
 
-            if(!snapshot.hasData || snapshot.data!.isEmpty){
+            if (!snapshot.hasData || snapshot.data == null) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
 
-              return const Center(
-                child: Text("Belum ada riwayat booking"),
+                    Icon(
+                      Icons.car_repair,
+                      size: 90,
+                      color: Colors.grey,
+                    ),
+
+                    SizedBox(height: 20),
+
+                    Text(
+                      "Belum ada history",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    SizedBox(height: 8),
+
+                    Text(
+                      "Belum ada riwayat servis",
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+
+                  ],
+                ),
               );
-
             }
 
             final data = snapshot.data!;
 
-            return ListView.builder(
+            return RefreshIndicator(
 
-              padding: const EdgeInsets.all(15),
+              onRefresh: refreshHistory,
 
-              itemCount: data.length,
+              child:ListView.builder(
 
-              itemBuilder: (context,index){
+                padding: const EdgeInsets.all(15),
+
+                itemCount: data.length,
+
+                itemBuilder: (context,index){
 
                 final item = data[index];
 
@@ -254,6 +331,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
               },
 
+            )
             );
 
           },

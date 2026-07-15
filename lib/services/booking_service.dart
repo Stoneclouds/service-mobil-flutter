@@ -14,7 +14,9 @@ class BookingService {
       Uri.parse("$baseUrl/booking.php"),
       body: booking.toJson(),
     );
-
+    if (response.statusCode != 200) {
+      throw Exception("Server error");
+    }
     final data = jsonDecode(response.body);
 
     return data["status"] == "success";

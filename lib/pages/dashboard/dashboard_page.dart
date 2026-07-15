@@ -42,6 +42,18 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     loadDashboard();
   }
+  Future<void> refreshDashboard() async {
+
+    setState(() {
+
+      stats = dashboardService.getStats(widget.userId);
+
+      lastBooking =
+          dashboardService.getLastBooking(widget.userId);
+
+    });
+
+  }
 
   Future<void> loadDashboard() async {
     setState(() {
@@ -60,14 +72,67 @@ class _DashboardState extends State<Dashboard> {
         }
 
         if (snapshot.hasError) {
-          return const Center(
-            child: Text("Gagal mengambil data dashboard"),
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+
+                const Icon(
+                  Icons.wifi_off,
+                  size: 80,
+                  color: Colors.red,
+                ),
+
+                const SizedBox(height: 15),
+
+                const Text(
+                  "Tidak dapat terhubung ke server",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                const Text(
+                  "Periksa koneksi atau server Anda.",
+                ),
+
+                const SizedBox(height: 20),
+
+                ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      stats = dashboardService.getStats(widget.userId);
+                    });
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text("Coba Lagi"),
+                ),
+
+              ],
+            ),
           );
         }
 
         final data = snapshot.data!;
 
-        return SingleChildScrollView(
+        return RefreshIndicator(
+          onRefresh: () async {
+
+          setState(() {
+            stats = dashboardService.getStats(widget.userId);
+            lastBooking =
+                dashboardService.getLastBooking(widget.userId);
+          });
+
+        },
+
+        child: SingleChildScrollView(
+
+        physics:
+        const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
@@ -158,17 +223,25 @@ class _DashboardState extends State<Dashboard> {
                       color: Colors.blue,
                       onTap: () async {
                         final result = await Navigator.push(
+
                           context,
+
                           MaterialPageRoute(
+
                             builder: (_) => BookingPage(
+
                               userId: widget.userId,
+
                             ),
+
                           ),
+
                         );
 
                         if (result == true) {
-                          Navigator.pop(context, true);
+
                           loadDashboard();
+
                         }
                       },
                     ),
@@ -319,6 +392,7 @@ class _DashboardState extends State<Dashboard> {
 
             ],
           ),
+        ),
         );
       },
     );

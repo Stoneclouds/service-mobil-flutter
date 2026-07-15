@@ -19,6 +19,10 @@ class ProfileService {
 
     );
 
+    if (response.statusCode != 200) {
+      throw Exception("Server error");
+    }
+    
     final data = jsonDecode(response.body);
 
     if(data["status"]=="success"){

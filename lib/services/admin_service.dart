@@ -45,7 +45,9 @@ class AdminService {
       },
 
     );
-
+    if (response.statusCode != 200) {
+      throw Exception("Server error");
+    }
     final data = jsonDecode(response.body);
 
     return data["status"]=="success";

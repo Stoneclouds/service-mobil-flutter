@@ -28,7 +28,9 @@ class DashboardService {
     final response = await http.get(
       Uri.parse("$baseUrl/last_booking.php?user_id=$userId"),
     );
-
+    if (response.statusCode != 200) {
+      throw Exception("Server error");
+    }
     final data = jsonDecode(response.body);
 
     if (data["status"] == "success") {

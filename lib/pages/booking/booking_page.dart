@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/booking_model.dart';
 import '../../services/booking_service.dart';
+import '../../widgets/success_dialog.dart';
+import '../../widgets/error_dialog.dart';
 
 class BookingPage extends StatefulWidget {
   final int userId;
@@ -71,19 +73,31 @@ class _BookingPageState extends State<BookingPage> {
     if (success) {
       if (!mounted) return;
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Booking berhasil"),
-        ),
+      await SuccessDialog.show(
+
+        context,
+
+        title: "Booking Berhasil",
+
+        message:
+            "Booking servis berhasil dibuat.\nSilakan datang sesuai jadwal.",
+
       );
 
-      Navigator.pop(context);
+      if (!mounted) return;
+
+      Navigator.pop(context, true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Booking gagal"),
-        ),
-      );
+        await ErrorDialog.show(
+
+          context,
+
+          title: "Booking Gagal",
+
+          message:
+              "Booking tidak dapat diproses.\nSilakan coba lagi.",
+
+        );
     }
   }
 

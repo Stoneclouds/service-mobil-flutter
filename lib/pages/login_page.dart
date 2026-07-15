@@ -4,6 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import '../services/auth_service.dart';
 import '../services/session_service.dart';
 import 'home_page.dart';
+import '../../widgets/error_dialog.dart';
 
 final AuthService authService = AuthService();
 
@@ -53,19 +54,29 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         if (!mounted) return;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Username atau Password salah"),
-          ),
+        await ErrorDialog.show(
+
+          context,
+
+          title: "Login Gagal",
+
+          message:
+              "Username atau Password salah.",
+
         );
       }
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Terjadi kesalahan:\n$e"),
-        ),
+      await ErrorDialog.show(
+
+        context,
+
+        title: "Terjadi Kesalahan",
+
+        message:
+            "Tidak dapat terhubung ke server.\nSilakan coba beberapa saat lagi.",
+
       );
     }
   }

@@ -5,6 +5,7 @@ import '../../models/profile_model.dart';
 import '../../services/profile_service.dart';
 import '../../services/session_service.dart';
 import '../login_page.dart';
+import '../../widgets/shimmer/profile_shimmer.dart';
 
 class ProfilePage extends StatefulWidget {
   final int userId;
@@ -33,7 +34,6 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     profile = profileService.getProfile(widget.userId);
   }
-
   Future<void> logout() async {
 
     final confirm = await showDialog<bool>(
@@ -52,12 +52,31 @@ class _ProfilePageState extends State<ProfilePage> {
             child: const Text("Batal"),
           ),
 
-          ElevatedButton(
-            onPressed: (){
-              Navigator.pop(context,true);
+           ElevatedButton(
+
+            onPressed: () async {
+
+              await SessionService().logout();
+
+              if (!context.mounted) return;
+
+              Navigator.pushAndRemoveUntil(
+
+                context,
+
+                MaterialPageRoute(
+                  builder: (_) => const LoginPage(),
+                ),
+
+                (route) => false,
+
+              );
+
             },
+
             child: const Text("Logout"),
-          )
+
+          ),
 
         ],
       ),
@@ -78,7 +97,15 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
   }
+    Future<void> refreshProfile() async {
 
+      setState(() {
+
+        profile =
+            profileService.getProfile(widget.userId);
+
+      });
+    }
   @override
   Widget build(BuildContext context) {
 
@@ -95,19 +122,53 @@ class _ProfilePageState extends State<ProfilePage> {
 
         builder: (context,snapshot){
 
-          if(snapshot.connectionState ==
-              ConnectionState.waiting){
-
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-
+          if(snapshot.connectionState == ConnectionState.waiting){
+            return const ProfileShimmer();
           }
 
           if(snapshot.hasError){
 
-            return const Center(
-              child: Text("Gagal mengambil profile"),
+            return Center(
+
+              child: Column(
+
+                mainAxisAlignment: MainAxisAlignment.center,
+
+                children: [
+
+                  const Icon(
+                    Icons.person_off,
+                    size:80,
+                    color:Colors.red,
+                  ),
+
+                  const SizedBox(height:20),
+
+                  const Text(
+                    "Profile gagal dimuat",
+                  ),
+
+                  ElevatedButton(
+
+                    onPressed: (){
+
+                      setState((){
+
+                        profile =
+                            profileService.getProfile(widget.userId);
+
+                      });
+
+                    },
+
+                    child: const Text("Coba Lagi"),
+
+                  )
+
+                ],
+
+              ),
+
             );
 
           }
@@ -122,7 +183,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
           final user = snapshot.data!;
 
-          return SingleChildScrollView(
+          return RefreshIndicator(
+
+           onRefresh: refreshProfile,
+
+
+            child: SingleChildScrollView(
 
             padding: const EdgeInsets.all(20),
 
@@ -323,6 +389,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
             ),
 
+          )
           );
 
         },
